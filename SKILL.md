@@ -43,10 +43,14 @@ Claude-to-IM-skill 的安装目录（TARGET_DIR）通常在 `~/.claude/skills/Cl
    - 检查是否设置了 `CLAUDE_CODE_GIT_BASH_PATH`
    - 如果没有，检查系统上 bash.exe 的实际位置（`where bash`）
 
-5. **检查 Node.js 版本**
+5. **检查开机自启动任务**
+   - 运行 `Get-ScheduledTask -TaskName 'ClaudeToIMBridge' -ErrorAction SilentlyContinue`
+   - 未找到则标记为 ⚠️（可选修复）
+
+6. **检查 Node.js 版本**
    - 运行 `node --version`，需要 >= 20
 
-6. **检查 Claude CLI**
+7. **检查 Claude CLI**
    - 运行 `claude --version`，需要 >= 2.x
 
 ### 第二步：汇报诊断结果
@@ -206,6 +210,27 @@ CLAUDE_CODE_GIT_BASH_PATH=<找到的路径>
 当核心库刚被下载/重建，或 `dist/daemon.mjs` 不存在时执行：
 ```bash
 cd ~/.claude/skills/Claude-to-IM-skill-main && npm run build
+```
+
+### 修复 E：设置开机自启动（任务计划程序）
+
+当 `ClaudeToIMBridge` 计划任务不存在时执行。
+
+运行：
+```powershell
+powershell -ExecutionPolicy Bypass -File "~/.claude/skills/Claude-to-IM-skill-main/scripts/register-autostart.ps1" install
+```
+
+这会注册一个"用户登录时"触发的计划任务，以当前用户身份在后台静默启动桥接 daemon。
+
+验证：
+```powershell
+powershell -ExecutionPolicy Bypass -File "~/.claude/skills/Claude-to-IM-skill-main/scripts/register-autostart.ps1" status
+```
+
+如需移除自启动：
+```powershell
+powershell -ExecutionPolicy Bypass -File "~/.claude/skills/Claude-to-IM-skill-main/scripts/register-autostart.ps1" uninstall
 ```
 
 ---

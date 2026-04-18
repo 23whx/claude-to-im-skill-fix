@@ -1,4 +1,4 @@
-# fix-claude-to-im
+# claude-to-im-skill-fix
 
 这个 skill 用于修复 Claude-to-IM-skill 在 Windows 上的已知安装问题。
 
@@ -17,7 +17,7 @@ Claude-to-IM-skill 是一个将 Claude Code 桥接到飞书、Telegram、Discord
 在 Claude Code 中说：
 
 ```
-/fix-claude-to-im
+/claude-to-im-skill-fix
 ```
 
 或者用自然语言，例如：
@@ -117,6 +117,40 @@ Get-Content $ConfigFile | ForEach-Object {
     }
 }
 ```
+
+---
+
+## 开机自启动（任务计划程序）
+
+桥接 daemon 默认是手动启动的，重启电脑后需要重新运行 `start` 命令。
+本 skill 提供了一个辅助脚本，通过 Windows 任务计划程序实现登录时自动启动，无需管理员权限，无需安装额外工具。
+
+### 安装自启动
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\skills\Claude-to-IM-skill-main\scripts\register-autostart.ps1" install
+```
+
+安装后，每次登录 Windows 时桥接 daemon 会在后台自动启动。
+
+### 查看状态
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\skills\Claude-to-IM-skill-main\scripts\register-autostart.ps1" status
+```
+
+### 移除自启动
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\skills\Claude-to-IM-skill-main\scripts\register-autostart.ps1" uninstall
+```
+
+### 说明
+
+- 触发条件：当前用户登录时（`AtLogOn`）
+- 运行身份：当前用户（无需管理员权限）
+- 启动方式：后台静默，不弹出窗口
+- 如果 daemon 已在运行，`supervisor-windows.ps1 start` 会检测到并跳过，不会重复启动
 
 ---
 
